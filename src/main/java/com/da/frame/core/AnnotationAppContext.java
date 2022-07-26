@@ -40,9 +40,24 @@ public class AnnotationAppContext extends DefaultFactory {
 //                加载class
                 .map(Utils::loadClassFile)
                 .filter(Objects::nonNull)
-//                获取有Component注解标记的类
-                .filter(clz -> clz.isAnnotationPresent(Component.class))
-                .map(clz -> new BeanDefinition(clz.getSimpleName(), clz))
+//                处理类
+                .map(this::handClass)
+                .filter(Objects::nonNull)
                 .forEach(beanDefinition -> this.registerBeanDefinition(beanDefinition.getName(), beanDefinition));
+    }
+
+    //    处理符合条件的类为BeanDefinition
+    private BeanDefinition handClass(Class<?> clz) {
+//        处理有@Component注解的类
+        if (clz.isAnnotationPresent(Component.class)) {
+            String beanName = clz.getAnnotation(Component.class).value();
+            if (Utils.isBlank(beanName)) {
+                beanName = clz.getSimpleName();
+                beanName = beanName.substring(0, 1).toLowerCase() + beanName.substring(1);
+            }
+            return new BeanDefinition(beanName, clz);
+        }
+        // 其他的暂时不处理
+        return null;
     }
 }

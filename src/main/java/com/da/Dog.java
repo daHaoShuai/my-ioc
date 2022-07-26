@@ -1,6 +1,8 @@
 package com.da;
 
 import com.da.frame.annotation.Component;
+import com.da.frame.annotation.Inject;
+import com.da.po.User;
 
 /**
  * @Author Da
@@ -10,6 +12,10 @@ import com.da.frame.annotation.Component;
  */
 @Component
 public class Dog {
+
+    @Inject("my-user")
+    private User user;
+
     public void say() {
         System.out.println("hello world");
     }

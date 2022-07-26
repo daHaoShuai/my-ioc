@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * @Description:
  * @Date: 2022-07-26
  * @Time: 10:28
- * 标记类,交给容器管理
+ * 用来给容器管理的类注入属性
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Component {
+public @interface Inject {
     String value() default "";
 }

@@ -1,8 +1,10 @@
 package com.da.frame.core;
 
+import com.da.frame.annotation.Inject;
 import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +46,40 @@ public class DefaultFactory implements BeanFactory {
 
     //    根据bean定义创建bean
     private Object createBean(final BeanDefinition beanDefinition) {
-        return Utils.newInstance(beanDefinition.getClz());
+        final Class<?> clz = beanDefinition.getClz();
+//        先创建当前类的实例
+        final Object bean = Utils.newInstance(clz);
+//        给实例注入属性依赖
+        injectClzField(clz, bean);
+        return bean;
+    }
+
+    //    给实例注入属性依赖
+    private void injectClzField(Class<?> clz, Object o) {
+        //        获取要实例化的类上的所有属性
+        final Field[] fields = clz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+//            判断是不是需要注入依赖的属性
+                if (field.isAnnotationPresent(Inject.class)) {
+                    String value = field.getAnnotation(Inject.class).value();
+//                    如果注解为空的时候说明要有属性名字注入的容器中的类
+                    if (Utils.isBlank(value)) {
+                        value = field.getName();
+                    }
+//                    从容器中获取bean
+                    final Object bean = getBean(value);
+//                   给属性设置值
+                    field.set(o, bean);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new IocException(e.getMessage());
+            } finally {
+                field.setAccessible(false);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")//忽略强转类型的警告
