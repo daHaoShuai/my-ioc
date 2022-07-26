@@ -1,4 +1,7 @@
-package com.da.frame;
+package com.da.frame.core;
+
+import com.da.frame.exception.IocException;
+import com.da.frame.util.Utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,12 +44,12 @@ public class DefaultFactory implements BeanFactory {
 
     //    根据bean定义创建bean
     private Object createBean(final BeanDefinition beanDefinition) {
-
-        return null;
+        return Utils.newInstance(beanDefinition.getClz());
     }
 
+    @SuppressWarnings("unchecked")//忽略强转类型的警告
     @Override
     public <T> T getBean(String beanName, Class<T> clz) {
-        return null;
+        return (T) getBean(beanName);
     }
 }

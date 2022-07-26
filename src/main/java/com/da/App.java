@@ -1,6 +1,6 @@
 package com.da;
 
-import com.da.frame.AnnotationAppContext;
+import com.da.frame.core.AnnotationAppContext;
 
 /**
  * @Author Da
@@ -11,6 +11,7 @@ import com.da.frame.AnnotationAppContext;
 public class App {
     public static void main(String[] args) {
         final AnnotationAppContext context = new AnnotationAppContext(App.class);
-        System.out.println(context);
+        final Dog dog = context.getBean("Dog", Dog.class);
+        dog.say();
     }
 }

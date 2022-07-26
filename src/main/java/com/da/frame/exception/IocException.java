@@ -1,4 +1,4 @@
-package com.da.frame;
+package com.da.frame.exception;
 
 /**
  * @Author Da

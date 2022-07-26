@@ -1,4 +1,4 @@
-package com.da.frame;
+package com.da.frame.core;
 
 /**
  * @Author Da
@@ -7,10 +7,15 @@ package com.da.frame;
  * @Time: 10:52
  * bean定义实现类
  */
-public class BeanDefinitionImpl implements BeanDefinition {
+public class BeanDefinition {
 
     private String name;
     private Class<?> clz;
+
+    public BeanDefinition(String name, Class<?> clz) {
+        this.name = name;
+        this.clz = clz;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -20,12 +25,11 @@ public class BeanDefinitionImpl implements BeanDefinition {
         this.clz = clz;
     }
 
-    @Override
+
     public String getName() {
         return this.name;
     }
 
-    @Override
     public Class<?> getClz() {
         return this.clz;
     }
