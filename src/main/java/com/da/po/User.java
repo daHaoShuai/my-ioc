@@ -16,11 +16,13 @@ public class User {
     @Inject
     private Dog dog;
 
-    private String name = "hello";
+    @Inject("dog")
+    private Dog dog1;
+
+    public String name = "hello";
 
     public void say() {
-        System.out.println(name);
-        if (dog != null)
-            dog.say();
+        System.out.println(name + " " + dog + " " + dog1);
+        dog.say();
     }
 }

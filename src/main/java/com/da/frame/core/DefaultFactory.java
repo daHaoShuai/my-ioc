@@ -5,6 +5,7 @@ import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,6 +22,8 @@ public class DefaultFactory implements BeanFactory {
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
     //    保存创建好的单例bean
     private final Map<String, Object> beanMap = new ConcurrentHashMap<>();
+    //    缓存创建好的bean实例
+    private final Map<String, Object> cacheBeanMap = new ConcurrentHashMap<>();
 
     //    注册bean的信息
     protected void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
@@ -49,6 +52,8 @@ public class DefaultFactory implements BeanFactory {
         final Class<?> clz = beanDefinition.getClz();
 //        先创建当前类的实例
         final Object bean = Utils.newInstance(clz);
+//        缓存一下当前的实例
+        cacheBeanMap.put(beanDefinition.getName(), bean);
 //        给实例注入属性依赖
         injectClzField(clz, bean);
         return bean;
@@ -69,7 +74,14 @@ public class DefaultFactory implements BeanFactory {
                         value = field.getName();
                     }
 //                    从容器中获取bean
-                    final Object bean = getBean(value);
+                    Object bean;
+//                    先从缓存中拿bean对象
+                    if (cacheBeanMap.containsKey(value)) {
+                        bean = cacheBeanMap.get(value);
+                    } else {
+//                        不行再去创建
+                        bean = getBean(value);
+                    }
 //                   给属性设置值
                     field.set(o, bean);
                 }

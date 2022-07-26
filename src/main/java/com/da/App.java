@@ -12,9 +12,9 @@ import com.da.po.User;
 public class App {
     public static void main(String[] args) {
         final AnnotationAppContext context = new AnnotationAppContext(App.class);
-//        final Dog dog = context.getBean("dog", Dog.class);
+        final Dog dog = context.getBean("dog", Dog.class);
         final User user = (User) context.getBean("my-user");
-//        dog.say();
+        dog.say();
         user.say();
     }
 }
