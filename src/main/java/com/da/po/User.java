@@ -16,13 +16,10 @@ public class User {
     @Inject
     private Dog dog;
 
-    @Inject("dog")
-    private Dog dog1;
-
     public String name = "hello";
 
     public void say() {
-        System.out.println(name + " " + dog + " " + dog1);
+        System.out.println(name + " " + dog);
         dog.say();
     }
 }

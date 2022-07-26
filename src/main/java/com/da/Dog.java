@@ -17,6 +17,6 @@ public class Dog {
     private User user;
 
     public void say() {
-        System.out.println("hello world" + user.name);
+        System.out.println("hello world " + user.name);
     }
 }
