@@ -10,8 +10,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -146,5 +149,42 @@ public class Utils {
             e.printStackTrace();
             throw new IocException("bean创建失败: " + e.getMessage());
         }
+    }
+
+    //    用来把String转成其他数据类型
+    private static final Map<String, Function<String, Object>> typeMap = new HashMap<>();
+
+    static {
+        typeMap.put("java.lang.String", str -> str);
+        typeMap.put("byte", Byte::valueOf);
+        typeMap.put("java.lang.Byte", Byte::valueOf);
+        typeMap.put("boolean", Boolean::valueOf);
+        typeMap.put("java.lang.Boolean", Boolean::valueOf);
+        typeMap.put("short", Short::valueOf);
+        typeMap.put("java.lang.Short", Short::valueOf);
+        typeMap.put("char", str -> str.charAt(0));
+        typeMap.put("java.lang.Character", str -> str.charAt(0));
+        typeMap.put("int", Integer::valueOf);
+        typeMap.put("java.lang.Integer", Integer::valueOf);
+        typeMap.put("long", Long::valueOf);
+        typeMap.put("java.lang.Long", Long::valueOf);
+        typeMap.put("float", Float::valueOf);
+        typeMap.put("java.lang.Float", Float::valueOf);
+        typeMap.put("double", Double::valueOf);
+        typeMap.put("java.lang.Double", Double::valueOf);
+    }
+
+    /**
+     * 把String类型转成相应的格式
+     *
+     * @param value 要转换的String
+     * @param type  要转换成的类型
+     * @return 转换好的类型
+     */
+    public static Object conv(String value, Class<?> type) {
+        if (isNotBlank(value) && null != type) {
+            return typeMap.get(type.getName()).apply(value);
+        }
+        throw new IocException("类型转换失败");
     }
 }

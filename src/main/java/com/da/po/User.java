@@ -20,6 +20,5 @@ public class User {
 
     public void say() {
         System.out.println(name + " " + dog);
-        dog.say();
     }
 }

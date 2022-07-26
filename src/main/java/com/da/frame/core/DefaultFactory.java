@@ -1,11 +1,11 @@
 package com.da.frame.core;
 
 import com.da.frame.annotation.Inject;
+import com.da.frame.annotation.Value;
 import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,37 +60,49 @@ public class DefaultFactory implements BeanFactory {
     }
 
     //    给实例注入属性依赖
-    private void injectClzField(Class<?> clz, Object o) {
+    private void injectClzField(Class<?> clz, Object bean) {
         //        获取要实例化的类上的所有属性
         final Field[] fields = clz.getDeclaredFields();
         for (Field field : fields) {
-            field.setAccessible(true);
-            try {
+//            处理每个属性
+            injectField(field, bean);
+        }
+    }
+
+    //    给属性注入值
+    private void injectField(Field field, Object o) {
+        field.setAccessible(true);
+        try {
 //            判断是不是需要注入依赖的属性
-                if (field.isAnnotationPresent(Inject.class)) {
-                    String value = field.getAnnotation(Inject.class).value();
+            if (field.isAnnotationPresent(Inject.class)) {
+                String value = field.getAnnotation(Inject.class).value();
 //                    如果注解为空的时候说明要有属性名字注入的容器中的类
-                    if (Utils.isBlank(value)) {
-                        value = field.getName();
-                    }
-//                    从容器中获取bean
-                    Object bean;
-//                    先从缓存中拿bean对象
-                    if (cacheBeanMap.containsKey(value)) {
-                        bean = cacheBeanMap.get(value);
-                    } else {
-//                        不行再去创建
-                        bean = getBean(value);
-                    }
-//                   给属性设置值
-                    field.set(o, bean);
+                if (Utils.isBlank(value)) {
+                    value = field.getName();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IocException(e.getMessage());
-            } finally {
-                field.setAccessible(false);
+//                    从容器中获取bean
+                Object bean;
+//                    先从缓存中拿bean对象
+                if (cacheBeanMap.containsKey(value)) {
+                    bean = cacheBeanMap.get(value);
+                } else {
+//                        不行再去创建
+                    bean = getBean(value);
+                }
+//                   给属性设置值
+                field.set(o, bean);
             }
+//            注入基本属性
+            else if (field.isAnnotationPresent(Value.class)) {
+                final String value = field.getAnnotation(Value.class).value();
+                field.set(o, Utils.conv(value, field.getType()));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IocException(e.getMessage());
+        } finally {
+            field.setAccessible(false);
         }
     }
 
