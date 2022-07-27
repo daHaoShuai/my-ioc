@@ -35,6 +35,10 @@ public class Dog {
     @Value("${c}")
     private double c;
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Dog{" +

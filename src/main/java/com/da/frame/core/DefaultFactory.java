@@ -1,5 +1,6 @@
 package com.da.frame.core;
 
+import com.da.frame.annotation.Bean;
 import com.da.frame.annotation.Inject;
 import com.da.frame.annotation.Value;
 import com.da.frame.exception.IocException;
@@ -7,6 +8,8 @@ import com.da.frame.util.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -59,6 +62,41 @@ public class DefaultFactory implements BeanFactory {
     //    注册bean的信息
     protected void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
+    }
+
+    //    给配置类注册bean
+    protected void registerBeanMap(final String beanName, final Object bean) {
+        beanMap.put(beanName, bean);
+    }
+
+    //    注册配置类的bean
+    protected void registerConfigBean(final Class<?> clz) {
+//            实例化当前配置类对象
+        final Object configBean = Utils.newInstance(clz);
+//        给配置类的属性注入值
+        injectClzField(clz, configBean);
+//            扫描配置类上标记了@Bean注解的方法
+        for (Method method : clz.getDeclaredMethods()) {
+            try {
+                method.setAccessible(true);
+                if (method.isAnnotationPresent(Bean.class)) {
+//                        判断@Bean注解中有没有给这个类起名字,没有就用方法的返回类型首字母小写作为bean的名字
+                    String beanName = method.getAnnotation(Bean.class).value();
+                    if (Utils.isBlank(beanName)) {
+                        beanName = method.getReturnType().getSimpleName();
+                        beanName = beanName.substring(0, 1).toLowerCase() + beanName.substring(1);
+                    }
+//                        实例化bean(这里就没有依赖注入了)
+                    final Object bean = method.invoke(configBean);
+                    this.registerBeanMap(beanName, bean);
+                }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                throw new IocException("创建" + clz.getSimpleName() + "上的bean实例出错");
+            } finally {
+                method.setAccessible(false);
+            }
+        }
     }
 
     @Override

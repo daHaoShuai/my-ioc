@@ -1,8 +1,13 @@
 package com.da.frame.core;
 
+import com.da.frame.annotation.Bean;
 import com.da.frame.annotation.Component;
+import com.da.frame.annotation.Configuration;
+import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +61,11 @@ public class AnnotationAppContext extends DefaultFactory {
                 beanName = beanName.substring(0, 1).toLowerCase() + beanName.substring(1);
             }
             return new BeanDefinition(beanName, clz);
+        }
+//        处理有@Configuration注解标记的类
+        else if (clz.isAnnotationPresent(Configuration.class)) {
+//            注册配置类中的bean对象信息
+            this.registerConfigBean(clz);
         }
         // 其他的暂时不处理
         return null;

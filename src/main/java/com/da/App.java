@@ -14,6 +14,8 @@ public class App {
         final AnnotationAppContext context = new AnnotationAppContext(App.class);
         context.getBean("my-user", User.class).say();
         final Dog dog = context.getBean("dog", Dog.class);
+        final Dog dog1 = context.getBean("config-dog", Dog.class);
         System.out.println(dog);
+        System.out.println(dog1);
     }
 }
