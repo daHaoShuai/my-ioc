@@ -13,9 +13,12 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * @Author Da
@@ -42,17 +45,17 @@ public class DefaultFactory implements BeanFactory {
         if (null != configFile) {
             //        如果配置文件存在才扫描
             if (Files.exists(configFile)) {
-                try {
-                    //                读取配置文件
-                    Files.readAllLines(configFile)
-                            //                        用=分割键值对
-                            .stream().map(line -> line.split("="))
-                            //                        过滤出只有2个值的数组
-                            .filter(arr -> arr.length == 2)
-                            //                        添加到配置信息Map中
-                            .forEach(arr -> configInfoMap.put(arr[0], arr[1]));
+//                Files.lines 这个方法读取每一行,并使用函数式数据流来对其流式处理,而不是一次性把所有行都读进内存
+                try (Stream<String> lines = Files.lines(configFile)) {
+//                    用=分开每一行的数据
+                    Function<String, String[]> splitLine = s -> s.split("=");
+//                    过滤出数组长度等于2的数组
+                    Predicate<String[]> filterLengthEqTwo = arr -> arr.length == 2;
+//                    添加信息到configInfoMap中
+                    Consumer<String[]> addConfigInfoMap = arr -> configInfoMap.put(arr[0], arr[1]);
+//                    顺序流操作
+                    lines.map(splitLine).filter(filterLengthEqTwo).forEach(addConfigInfoMap);
                 } catch (IOException e) {
-                    e.printStackTrace();
                     throw new IocException("读取配置文件出错" + e.getMessage());
                 }
             }
