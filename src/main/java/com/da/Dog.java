@@ -28,6 +28,12 @@ public class Dog {
     private Double aDouble;
     @Value("true")
     private Boolean aBoolean;
+    @Value("${a}")
+    private String a;
+    @Value("${b}")
+    private int b;
+    @Value("${c}")
+    private double c;
 
     @Override
     public String toString() {
@@ -39,6 +45,9 @@ public class Dog {
                 ", aFloat=" + aFloat +
                 ", aDouble=" + aDouble +
                 ", aBoolean=" + aBoolean +
+                ", a='" + a + '\'' +
+                ", b=" + b +
+                ", c=" + c +
                 '}';
     }
 }

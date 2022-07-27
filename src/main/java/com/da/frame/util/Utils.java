@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -82,15 +83,20 @@ public class Utils {
     public static File getResourceFile(String baseScanPath) {
         final ClassLoader classLoader = getClassLoader();
         final URL url = classLoader.getResource(baseScanPath);
-        assert url != null;
-        return new File(url.getFile());
+        if (null != url) {
+            return new File(url.getFile());
+        }
+        return null;
     }
 
     /**
      * 获取打包后的文件
      */
     public static Path getResourcePath(String baseScanPath) {
-        return Paths.get(getResourceFile(baseScanPath).getAbsolutePath());
+        if (getResourceFile(baseScanPath) != null) {
+            return Paths.get(Objects.requireNonNull(getResourceFile(baseScanPath)).getAbsolutePath());
+        }
+        return null;
     }
 
     /**

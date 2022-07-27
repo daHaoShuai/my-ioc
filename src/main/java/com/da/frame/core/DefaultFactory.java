@@ -5,7 +5,12 @@ import com.da.frame.annotation.Value;
 import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,6 +29,32 @@ public class DefaultFactory implements BeanFactory {
     private final Map<String, Object> beanMap = new ConcurrentHashMap<>();
     //    缓存创建好的bean实例
     private final Map<String, Object> cacheBeanMap = new ConcurrentHashMap<>();
+    //    配置文件中的信息
+    private final Map<String, String> configInfoMap = new HashMap<>();
+
+    public DefaultFactory() {
+//        扫描配置文件
+        final Path configFile = Utils.getResourcePath("app.properties");
+//        如果有配置文件才去扫描
+        if (null != configFile) {
+            //        如果配置文件存在才扫描
+            if (Files.exists(configFile)) {
+                try {
+                    //                读取配置文件
+                    Files.readAllLines(configFile)
+                            //                        用=分割键值对
+                            .stream().map(line -> line.split("="))
+                            //                        过滤出只有2个值的数组
+                            .filter(arr -> arr.length == 2)
+                            //                        添加到配置信息Map中
+                            .forEach(arr -> configInfoMap.put(arr[0], arr[1]));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new IocException("读取配置文件出错" + e.getMessage());
+                }
+            }
+        }
+    }
 
     //    注册bean的信息
     protected void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
@@ -94,8 +125,23 @@ public class DefaultFactory implements BeanFactory {
             }
 //            注入基本属性
             else if (field.isAnnotationPresent(Value.class)) {
-                final String value = field.getAnnotation(Value.class).value();
-                field.set(o, Utils.conv(value, field.getType()));
+                String value = field.getAnnotation(Value.class).value();
+//                判断是不是需要从配置文件中获取数据
+                if (value.startsWith("${") && value.endsWith("}")) {
+//                    如果有配置文件才会从配置文件中去找值
+                    if (configInfoMap.size() > 0) {
+                        value = value.substring(2, value.length() - 1);
+//                        如果配置map中有当前key对应的值就取出赋值
+                        if (configInfoMap.containsKey(value)) {
+                            final String infoValue = configInfoMap.get(value);
+                            field.set(o, Utils.conv(infoValue, field.getType()));
+                        } else {
+                            throw new IocException("注入值" + value + "时出错,请检查配置文件内容");
+                        }
+                    }
+                } else {
+                    field.set(o, Utils.conv(value, field.getType()));
+                }
             }
 
         } catch (Exception e) {
