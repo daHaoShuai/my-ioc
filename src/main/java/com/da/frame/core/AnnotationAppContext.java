@@ -39,7 +39,7 @@ public class AnnotationAppContext extends DefaultFactory {
 
     //    处理符合条件的class文件为bean的定义加到bean定义池中
     private void handlerClassFile(List<String> files) {
-        files.stream().map(Utils::pathTopackage)
+        files.stream().map(Utils::pathToPackage)
 //                把路径变成能加载的className
                 .map(s -> s.substring(s.indexOf(basePackageName), s.lastIndexOf(".")))
 //                加载class

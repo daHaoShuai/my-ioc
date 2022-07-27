@@ -56,7 +56,7 @@ public class Utils {
      * @param path 路径
      * @return 处理好的路径
      */
-    public static String pathTopackage(String path) {
+    public static String pathToPackage(String path) {
         if (isNotBlank(path)) {
             return path.replaceAll("\\\\", ".");
         }
