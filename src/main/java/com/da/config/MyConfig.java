@@ -35,4 +35,9 @@ public class MyConfig {
         return dog;
     }
 
+    @Bean
+    public String name() {
+        return "hello world";
+    }
+
 }

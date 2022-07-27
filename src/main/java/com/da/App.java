@@ -17,5 +17,7 @@ public class App {
         final Dog dog1 = context.getBean("config-dog", Dog.class);
         System.out.println(dog);
         System.out.println(dog1);
+        final String name = context.getBean("string", String.class);
+        System.out.println(name);
     }
 }
