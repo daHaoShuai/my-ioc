@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * @Time: 10:33
  * 默认bean工厂的实现
  */
-public class DefaultFactory implements BeanFactory {
+public class DefaultFactory implements AppContext {
 
     //    保存bean名字和bean的定义
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
@@ -98,6 +98,11 @@ public class DefaultFactory implements BeanFactory {
                 method.setAccessible(false);
             }
         }
+    }
+
+    //    注册容器到beanMap中
+    protected void registerContextBean(final AppContext context) {
+        beanMap.put("context", context);
     }
 
     @Override

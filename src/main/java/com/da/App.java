@@ -1,6 +1,7 @@
 package com.da;
 
 import com.da.frame.core.AnnotationAppContext;
+import com.da.frame.core.AppContext;
 import com.da.service.UserService;
 
 /**
@@ -15,5 +16,8 @@ final public class App {
         final AnnotationAppContext context = new AnnotationAppContext(App.class);
         final UserService userService = context.getBean("userService", UserService.class);
         userService.list().forEach(System.out::println);
+        userService.say();
+        AppContext appContext = context.getBean("context", AppContext.class);
+        System.out.println(appContext);
     }
 }

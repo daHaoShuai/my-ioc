@@ -3,14 +3,12 @@ package com.da.service.impl;
 import com.da.entity.User;
 import com.da.frame.annotation.Component;
 import com.da.frame.annotation.Inject;
+import com.da.frame.core.AppContext;
 import com.da.frame.core.BeanPostProcessor;
 import com.da.frame.util.Utils;
 import com.da.mapper.UserMapper;
 import com.da.service.UserService;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 /**
@@ -25,9 +23,17 @@ public class UserServiceImpl implements UserService, BeanPostProcessor {
     @Inject
     private UserMapper userMapper;
 
+    @Inject
+    private AppContext context;
+
     @Override
     public List<User> list() {
         return userMapper.list();
+    }
+
+    @Override
+    public void say() {
+        System.out.println("hello " + context.getBean("userService"));
     }
 
     @Override

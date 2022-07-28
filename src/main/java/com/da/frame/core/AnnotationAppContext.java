@@ -1,13 +1,9 @@
 package com.da.frame.core;
 
-import com.da.frame.annotation.Bean;
 import com.da.frame.annotation.Component;
 import com.da.frame.annotation.Configuration;
-import com.da.frame.exception.IocException;
 import com.da.frame.util.Utils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +22,8 @@ public class AnnotationAppContext extends DefaultFactory {
     public AnnotationAppContext(Class<?> config) {
         basePackageName = config.getPackage().getName();
         init();
+//        把自己注册到容器中
+        this.registerContextBean(this);
     }
 
     private void init() {
