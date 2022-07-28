@@ -28,22 +28,13 @@ public class UserServiceImpl implements UserService, BeanPostProcessor {
     }
 
     @Override
-    public Object postProcessorBeforeInitialization(String beanName, Object bean) {
-        return bean;
-    }
-
-    @Override
     public Object postProcessorAfterInitialization(String beanName, Object bean) {
-//        可以在这2个方法中实现代理逻辑
-        if ("userService".equals(beanName)) {
-//            返回代理对象
-            return Proxy.newProxyInstance(bean.getClass().getClassLoader(), bean.getClass().getInterfaces(), (proxy, method, args) -> {
-                System.out.println(method.getName() + "执行前");
-                Object o = method.invoke(bean, args);
-                System.out.println(method.getName() + "执行后");
-                return o;
-            });
-        }
-        return bean;
+//        可以在这2个方法中实现代理逻辑,返回当前对象的代理对象
+        return Proxy.newProxyInstance(bean.getClass().getClassLoader(), bean.getClass().getInterfaces(), (proxy, method, args) -> {
+            System.out.println(method.getName() + "执行前");
+            Object o = method.invoke(bean, args);
+            System.out.println(method.getName() + "执行后");
+            return o;
+        });
     }
 }

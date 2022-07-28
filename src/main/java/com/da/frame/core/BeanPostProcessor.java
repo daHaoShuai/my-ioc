@@ -9,7 +9,9 @@ public interface BeanPostProcessor {
     /**
      * 属性注入前
      */
-    Object postProcessorBeforeInitialization(final String beanName, final Object bean);
+    default Object postProcessorBeforeInitialization(final String beanName, final Object bean) {
+        return bean;
+    }
 
     /**
      * 属性注入后
