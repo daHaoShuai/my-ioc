@@ -4,9 +4,12 @@ import com.da.entity.User;
 import com.da.frame.annotation.Component;
 import com.da.frame.annotation.Inject;
 import com.da.frame.core.BeanPostProcessor;
+import com.da.frame.util.Utils;
 import com.da.mapper.UserMapper;
 import com.da.service.UserService;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
@@ -30,11 +33,11 @@ public class UserServiceImpl implements UserService, BeanPostProcessor {
     @Override
     public Object postProcessorAfterInitialization(String beanName, Object bean) {
 //        可以在这2个方法中实现代理逻辑,返回当前对象的代理对象
-        return Proxy.newProxyInstance(bean.getClass().getClassLoader(), bean.getClass().getInterfaces(), (proxy, method, args) -> {
-            System.out.println(method.getName() + "执行前");
-            Object o = method.invoke(bean, args);
-            System.out.println(method.getName() + "执行后");
-            return o;
+        return Utils.createProxyObj(bean, (method, args) -> {
+            System.out.println(method.getName() + "方法执行前");
+            Object invoke = method.invoke(bean, args);
+            System.out.println(method.getName() + "方法执行后");
+            return invoke;
         });
     }
 }

@@ -1,7 +1,6 @@
 package com.da;
 
 import com.da.frame.core.AnnotationAppContext;
-import com.da.mapper.UserMapper;
 import com.da.service.UserService;
 
 /**

@@ -2,10 +2,12 @@ package com.da.frame.util;
 
 import com.da.frame.exception.IocException;
 import com.da.frame.function.OneToOne;
+import com.da.frame.function.MethodAndObjectArrConsume;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,9 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -151,7 +151,8 @@ public class Utils {
                 return clz.getConstructor().newInstance();
             }
             throw new IocException("传入的要实例化的bean为null");
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             e.printStackTrace();
             throw new IocException("bean创建失败: " + e.getMessage());
         }
@@ -192,5 +193,17 @@ public class Utils {
             return typeMap.get(type.getName()).apply(value);
         }
         throw new IocException("类型转换失败");
+    }
+
+    /**
+     * 创建代理对象
+     *
+     * @param obj 要代理的对象
+     * @param fun 代理逻辑
+     * @return 代理对象
+     */
+    public static Object createProxyObj(Object obj, MethodAndObjectArrConsume fun) {
+        return Proxy.newProxyInstance(obj.getClass().getClassLoader(),
+                obj.getClass().getInterfaces(), (proxy, method, args) -> fun.exec(method, args));
     }
 }
