@@ -12,7 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -67,11 +69,6 @@ public class DefaultFactory implements BeanFactory {
         beanDefinitionMap.put(beanName, beanDefinition);
     }
 
-    //    给配置类注册bean
-    protected void registerBeanMap(final String beanName, final Object bean) {
-        beanMap.put(beanName, bean);
-    }
-
     //    注册配置类的bean
     protected void registerConfigBean(final Class<?> clz) {
 //            实例化当前配置类对象
@@ -91,7 +88,8 @@ public class DefaultFactory implements BeanFactory {
                     }
 //                        实例化bean(这里就没有依赖注入了)
                     final Object bean = method.invoke(configBean);
-                    this.registerBeanMap(beanName, bean);
+//                    存入单例池中
+                    beanMap.put(beanName, bean);
                 }
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -121,13 +119,21 @@ public class DefaultFactory implements BeanFactory {
 
     //    根据bean定义创建bean
     private Object createBean(final BeanDefinition beanDefinition) {
+        String beanName = beanDefinition.getName();
         final Class<?> clz = beanDefinition.getClz();
 //        先创建当前类的实例
-        final Object bean = Utils.newInstance(clz);
+        Object bean = Utils.newInstance(clz);
+//        如果当前的类实现了BeanPostProcessor接口,就在注入属性的前后执行一下回调方法
+        if (BeanPostProcessor.class.isAssignableFrom(clz)) {
+            bean = ((BeanPostProcessor) bean).postProcessorBeforeInitialization(beanName, bean);
+        }
 //        缓存一下当前的实例
         cacheBeanMap.put(beanDefinition.getName(), bean);
 //        给实例注入属性依赖
         injectClzField(clz, bean);
+        if (BeanPostProcessor.class.isAssignableFrom(clz)) {
+            bean = ((BeanPostProcessor) bean).postProcessorAfterInitialization(beanName, bean);
+        }
         return bean;
     }
 

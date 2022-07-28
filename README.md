@@ -104,7 +104,9 @@ public class Dog {
     }
 }
 ```
+
 > 使用配置类注入bean,如果@Bean没有指定值,默认使用方法返回类型的名字首字母小写作为key
+
 ```java
 package com.da.config;
 
@@ -144,6 +146,7 @@ public class MyConfig {
 
 }
 ```
+
 ```java
 import com.da.frame.core.AnnotationAppContext;
 import com.da.po.User;
@@ -158,6 +161,54 @@ public class App {
         System.out.println(dog1);
         final String name = context.getBean("string", String.class);
         System.out.println(name);
+    }
+}
+```
+
+> 实现BeanPostProcessor接口在bean值注入前后进行操作
+
+```java
+package com.da.service.impl;
+
+import com.da.entity.User;
+import com.da.frame.annotation.Component;
+import com.da.frame.annotation.Inject;
+import com.da.frame.core.BeanPostProcessor;
+import com.da.mapper.UserMapper;
+import com.da.service.UserService;
+
+import java.lang.reflect.Proxy;
+import java.util.List;
+
+@Component("userService")
+public class UserServiceImpl implements UserService, BeanPostProcessor {
+
+    @Inject
+    private UserMapper userMapper;
+
+    @Override
+    public List<User> list() {
+        return userMapper.list();
+    }
+
+    @Override
+    public Object postProcessorBeforeInitialization(String beanName, Object bean) {
+        return bean;
+    }
+
+    @Override
+    public Object postProcessorAfterInitialization(String beanName, Object bean) {
+//        可以在这2个方法中实现代理逻辑
+        if ("userService".equals(beanName)) {
+//            返回代理对象
+            return Proxy.newProxyInstance(bean.getClass().getClassLoader(), bean.getClass().getInterfaces(), (proxy, method, args) -> {
+                System.out.println(method.getName() + "执行前");
+                Object o = method.invoke(bean, args);
+                System.out.println(method.getName() + "执行后");
+                return o;
+            });
+        }
+        return bean;
     }
 }
 ```
