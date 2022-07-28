@@ -8,7 +8,7 @@ package com.da.frame.core;
  * bean工厂
  */
 public interface BeanFactory {
-    Object getBean(String beanName);
+    Object getBean(final String beanName);
 
     <T> T getBean(final String beanName, final Class<T> clz);
 }

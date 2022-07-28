@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author Da
@@ -109,15 +110,18 @@ public class Utils {
     public static List<String> getDirFileInJudge(Path path, OneToOne<String> fun) {
         try {
             if (null != path && null != fun) {
-                return Files.walk(path)
-                        .map(Path::toFile)
-                        .map(file -> fun.exec(file.getAbsolutePath()))
-                        .filter(s -> !s.equals(""))
-                        .collect(Collectors.toList());
+                try (Stream<Path> walk = Files.walk(path)) {
+                    return walk.map(Path::toFile)
+                            .map(file -> fun.exec(file.getAbsolutePath()))
+                            .filter(s -> !s.equals(""))
+                            .collect(Collectors.toList());
+                } catch (IocException e) {
+                    throw new IocException("扫描文件时出错:" + e.getMessage());
+                }
             }
             throw new IocException("要扫描的路径和判断条件不能为null");
         } catch (IOException e) {
-            throw new IocException(e.getMessage());
+            throw new IocException("扫描文件时出错:" + e.getMessage());
         }
     }
 

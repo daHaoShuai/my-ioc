@@ -1,8 +1,6 @@
 package com.da;
 
-import com.da.frame.core.AnnotationAppContext;
-import com.da.frame.core.AppContext;
-import com.da.service.UserService;
+import javafx.application.Application;
 
 /**
  * @Author Da
@@ -11,13 +9,7 @@ import com.da.service.UserService;
  * @Time: 11:01
  */
 final public class App {
-
     public static void main(String[] args) {
-        final AnnotationAppContext context = new AnnotationAppContext(App.class);
-        final UserService userService = context.getBean("userService", UserService.class);
-        userService.list().forEach(System.out::println);
-        userService.say();
-        AppContext appContext = context.getBean("context", AppContext.class);
-        System.out.println(appContext);
+        Application.launch(Show.class, args);
     }
 }

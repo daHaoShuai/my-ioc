@@ -9,22 +9,13 @@ package com.da.frame.core;
  */
 public class BeanDefinition {
 
-    private String name;
-    private Class<?> clz;
+    private final String name;
+    private final Class<?> clz;
 
     public BeanDefinition(String name, Class<?> clz) {
         this.name = name;
         this.clz = clz;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setClz(Class<?> clz) {
-        this.clz = clz;
-    }
-
 
     public String getName() {
         return this.name;

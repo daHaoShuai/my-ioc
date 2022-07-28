@@ -12,9 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -42,6 +40,16 @@ public class DefaultFactory implements AppContext {
 
     public DefaultFactory() {
 //        扫描配置文件
+        scanConfigFile();
+    }
+
+    //    获取配置文件中对应key的值
+    public String getPropValue(final String propKey) {
+        return configInfoMap.get(propKey);
+    }
+
+    //    扫描配置文件
+    protected void scanConfigFile() {
         final Path configFile = Utils.getResourcePath("app.properties");
 //        如果有配置文件才去扫描
         if (null != configFile) {
